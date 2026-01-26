@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastrar Moradores - SplitHome</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #f4f7f6;
+        }
+        .container {
+            display: flex;
+        }
+        .sidebar {
+            width: 250px;
+            background-color: #2c3e50;
+            color: white;
+            height: 100vh;
+            padding-top: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar-logo {
+            text-align: center;
+            padding: 0 20px;
+            margin-bottom: 20px;
+        }
+        .sidebar-logo img {
+            max-width: 200px;
+            width: 100%;
+        }
+        .sidebar h2 {
+            text-align: center;
+            color: #fff;
+            margin-bottom: 30px;
+            font-size: 18px;
+        }
+        .sidebar ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .sidebar ul li {
+            padding: 15px 20px;
+            cursor: pointer;
+            border-bottom: 1px solid #34495e;
+        }
+        .sidebar ul li:hover {
+            background-color: #34495e;
+        }
+        .sidebar ul li a {
+            color: white;
+            text-decoration: none;
+            display: block;
+        }
+        .main-content {
+            flex-grow: 1;
+            padding: 20px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #fff;
+            padding: 15px 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        .content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h3 {
+            color: #333;
+            margin-top: 0;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            background-color: #007bff;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .btn:hover {
+            background-color: #008C99;
+        }
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 1; 
+            left: 0;
+            top: 0;
+            width: 100%; 
+            height: 100%; 
+            overflow: auto; 
+            background-color: rgb(0,0,0); 
+            background-color: rgba(0,0,0,0.4); 
+            padding-top: 60px;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 8px;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .residents-list {
+            margin-top: 20px;
+        }
+        .resident-item {
+            background-color: #f9f9f9;
+            padding: 10px;
+            border: 1px solid #eee;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        .resident-item span {
+            font-weight: bold;
+        }
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+        }
+        .alert-success {
+            color: #155724;
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+        }
+        .alert-danger {
+            color: #721c24;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-logo">
+                <img src="{{ url_for('static', filename='imagens/logotipo-removebg.png') }}" alt="SplitHome Logo">
+            </div>
+            <ul>
+                <li><a href="/home">Visão Geral</a></li>
+                <li><a href="/cadastro_residente">Cadastrar moradores</a></li>
+                <li><a href="#">Contas</a></li>
+                <li><a href="/logout">Sair</a></li>
+            </ul>
+        </div>
+        <div class="main-content">
+            <div class="header">
+                <h1>Gerenciar Moradores</h1>
+                <button id="add-resident-btn" class="btn">Adicionar Novo Morador</button>
+            </div>
+            <div class="content">
+                <div id="alert-container"></div>
+                
+                <div class="residents-list">
+                    <h3>Moradores Cadastrados</h3>
+                    <div id="residents-container">
+                        {% if residents %}
+                            {% for resident in residents %}
+                                <div class="resident-item" data-id="{{ resident.id }}">
+                                    <span>{{ resident.name }} {{ resident.surname }}</span>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <p>Nenhum morador cadastrado ainda.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="resident-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Cadastrar Novo Morador</h3>
+            <form id="add-resident-form">
+                <div class="form-group">
+                    <label for="nome">Nome:</label>
+                    <input type="text" id="nome" name="nome" required>
+                </div>
+                <div class="form-group">
+                    <label for="sobrenome">Sobrenome:</label>
+                    <input type="text" id="sobrenome" name="sobrenome" required>
+                </div>
+                <button type="submit" class="btn">Cadastrar Morador</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Get o modal
+        var modal = document.getElementById("resident-modal");
+
+        // Get o botão que abre o modal
+        var btn = document.getElementById("add-resident-btn");
+
+        // Get o elemento <span> que fecha o modal
+        var span = document.getElementsByClassName("close")[0];
+
+        // Quando o usuário clicar no botão, abre o modal 
+        btn.onclick = function() {
+            modal.style.display = "block";
+        }
+
+        // Quando o usuário clicar no <span> (x), fecha o modal
+        span.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        // Quando o usuário clicar fora do modal, fecha
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        document.getElementById('add-resident-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const form = event.target;
+            const formData = new FormData(form);
+            const alertContainer = document.getElementById('alert-container');
+            
+            try {
+                const response = await fetch('/api/residents', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showAlert(result.message, 'success');
+                    // Adiciona o novo residente à lista sem recarregar a página
+                    const newResidentDiv = document.createElement('div');
+                    newResidentDiv.className = 'resident-item';
+                    // Assumindo que a API retorna o novo residente com id, nome e sobrenome
+                    newResidentDiv.dataset.id = result.resident.id; 
+                    newResidentDiv.innerHTML = `<span>${formData.get('nome')} ${formData.get('sobrenome')}</span>`;
+                    document.getElementById('residents-container').appendChild(newResidentDiv);
+                    form.reset();
+                    modal.style.display = "none"; // Fecha o modal
+                } else {
+                    showAlert(result.message, 'danger');
+                }
+            } catch (error) {
+                showAlert('Ocorreu um erro de conexão.', 'danger');
+            }
+        });
+
+        function showAlert(message, type) {
+            const alertContainer = document.getElementById('alert-container');
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.textContent = message;
+            
+            alertContainer.innerHTML = ''; // Limpa alertas anteriores
+            alertContainer.appendChild(alertDiv);
+
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

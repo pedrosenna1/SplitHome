@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - SplitHome</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .login-container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 400px;
+        }
+        .logo {
+            max-width: 400px;
+            margin-bottom: 20px;
+            
+        }
+
+        .login-form input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .form-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .login-form button, .login-form a.button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            text-decoration: none;
+            text-align: center;
+            color: white;
+        }
+
+        .login-form button {
+            background-color: #F97316;
+        }
+
+        .login-form a.button {
+            background-color: #008C99;
+        }
+
+        .login-form button:hover {
+            background-color: #FACC15;
+            color: #333;
+        }
+
+        .login-form a.button:hover {
+            background-color: #00747e;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <img src="{{ url_for('static', filename='imagens/logotipo.png') }}" alt="SplitHome Logo" class="logo">
+        <form class="login-form" action="/login" method="post">
+            <input type="email" name="email" placeholder="Email" required>
+            <input type="password" name="password" placeholder="Senha" required>
+            <div class="form-buttons">
+                <button type="submit">Login</button>
+                <a href="/cadastro" class="button">Cadastrar</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
