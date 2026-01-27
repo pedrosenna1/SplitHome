@@ -18,6 +18,7 @@ class ResidentService:
             conn.close()
             return True
         except sqlite3.IntegrityError:
+            conn.close()
             return False
         
     @staticmethod
@@ -33,6 +34,7 @@ class ResidentService:
             
             return residents
         except sqlite3.Error:
+            conn.close()
             return []
         
     @staticmethod
@@ -45,6 +47,7 @@ class ResidentService:
             conn.close()
             return True
         except sqlite3.Error:
+            conn.close()
             return False
 
         

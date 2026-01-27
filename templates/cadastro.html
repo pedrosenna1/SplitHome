@@ -53,11 +53,22 @@
             color: #F97316;
             text-decoration: none;
         }
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            border: 1px solid #f5c6cb;
+        }
     </style>
 </head>
 <body>
     <div class="cadastro-container">
         <h2>Crie sua conta</h2>
+        {% if error %}
+            <div class="error-message">{{ error }}</div>
+        {% endif %}
         <form class="cadastro-form" action="/cadastro" method="post">
             <input type="text" name="nome" placeholder="Nome completo" required>
             <input type="email" name="email" placeholder="Email" required>
