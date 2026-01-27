@@ -23,4 +23,18 @@ class UserService:
             conn.close()
             return True
         except sqlite3.IntegrityError:
+            conn.close()
+            return False
+        
+    @staticmethod
+    def delete_user(email):
+        try:
+            conn = sqlite3.connect(os.getenv("DATABASE_PATH"))
+            c = conn.cursor()
+            c.execute("DELETE FROM user WHERE email = ?", (email,))
+            conn.commit()
+            conn.close()
+            return True
+        except sqlite3.Error:
+            conn.close()
             return False
