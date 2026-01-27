@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciar Contas - SplitHome</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #f4f7f6;
+        }
+        .container {
+            display: flex;
+        }
+        .sidebar {
+            width: 250px;
+            background-color: #2c3e50;
+            color: white;
+            height: 100vh;
+            padding-top: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar-logo {
+            text-align: center;
+            padding: 0 20px;
+            margin-bottom: 20px;
+        }
+        .sidebar-logo img {
+            max-width: 200px;
+            width: 100%;
+        }
+        .sidebar ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .sidebar ul li {
+            padding: 15px 20px;
+            cursor: pointer;
+            border-bottom: 1px solid #34495e;
+        }
+        .sidebar ul li:hover {
+            background-color: #34495e;
+        }
+        .sidebar ul li a {
+            color: white;
+            text-decoration: none;
+            display: block;
+        }
+        .main-content {
+            flex-grow: 1;
+            padding: 20px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #fff;
+            padding: 15px 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        .content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            background-color: #F97316;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .btn:hover {
+            background-color: #008C99;
+        }
+        .btn-secondary {
+            background-color: #2c3e50;
+        }
+        .btn-secondary:hover {
+            background-color: #34495e;
+        }
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 1; 
+            left: 0;
+            top: 0;
+            width: 100%; 
+            height: 100%; 
+            overflow: auto; 
+            background-color: rgb(0,0,0); 
+            background-color: rgba(0,0,0,0.4); 
+            padding-top: 60px;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 8px;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+        }
+        .checkbox-group label {
+            margin: 0;
+        }
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+        }
+        .alert-success {
+            color: #155724;
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+        }
+        .alert-danger {
+            color: #721c24;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+        .accordion-month {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+        .accordion-month-header {
+            padding: 15px 20px;
+            background-color: #2c3e50;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            font-size: 18px;
+            transition: background-color 0.2s;
+        }
+        .accordion-month-title {
+            cursor: pointer;
+            flex-grow: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .accordion-month-title:hover {
+            background-color: #34495e;
+        }
+        .accordion-month-header .icon {
+            transition: transform 0.3s;
+        }
+        .accordion-month-header.active .icon {
+            transform: rotate(180deg);
+        }
+        .accordion-month-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            padding: 0 20px;
+        }
+        .accordion-month-content.active {
+            max-height: 2000px;
+            padding: 15px 20px;
+        }
+        .accordion-categoria {
+            background-color: #f9f9f9;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            overflow: hidden;
+            will-change: transform;
+        }
+        .accordion-categoria-header {
+            padding: 12px 15px;
+            background-color: #F97316;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+        .accordion-categoria-header:hover {
+            background-color: #008C99;
+        }
+        .accordion-categoria-header .icon {
+            transition: transform 0.2s;
+            will-change: transform;
+        }
+        .accordion-categoria-header.active .icon {
+            transform: rotate(180deg);
+        }
+        .accordion-categoria-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.2s ease-out, padding 0.2s ease-out;
+            padding: 0 15px;
+            will-change: max-height;
+        }
+        .accordion-categoria-content.active {
+            max-height: 1500px;
+            padding: 15px;
+        }
+        .conta-item {
+            background-color: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr auto;
+            gap: 15px;
+            align-items: center;
+        }
+        .conta-item:last-child {
+            margin-bottom: 0;
+        }
+        .conta-nome {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        .conta-valor {
+            color: #F97316;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .conta-vencimento {
+            color: #666;
+        }
+        .conta-status {
+            text-align: center;
+        }
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .badge-pago {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .badge-pendente {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        .btn-pagar {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            background-color: #28a745;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .btn-pagar:hover {
+            background-color: #218838;
+        }
+        .btn-pagar:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .btn-fechar-mes {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            background-color: #dc3545;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            white-space: nowrap;
+            margin-left: 15px;
+        }
+        .btn-fechar-mes:hover {
+            background-color: #c82333;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+        .contas-pendentes-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .conta-pendente-item {
+            background-color: #f9f9f9;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            padding: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+        .conta-pendente-info {
+            flex-grow: 1;
+        }
+        .conta-pendente-nome {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 3px;
+        }
+        .conta-pendente-detalhe {
+            font-size: 13px;
+            color: #666;
+        }
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 2000;
+        }
+        .toast {
+            min-width: 260px;
+            padding: 12px 16px;
+            border-radius: 6px;
+            color: #0f5132;
+            background-color: #d1e7dd;
+            border: 1px solid #badbcc;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            font-weight: 600;
+        }
+        .toast-error {
+            color: #842029;
+            background-color: #f8d7da;
+            border-color: #f5c2c7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-logo">
+                <img src="{{ url_for('static', filename='imagens/logotipo-removebg.png') }}" alt="SplitHome Logo">
+            </div>
+            <ul>
+                <li><a href="/home">Visão Geral</a></li>
+                <li><a href="/cadastro_residente">Cadastrar moradores</a></li>
+                <li><a href="/contas">Contas</a></li>
+                <li><a href="/logout">Sair</a></li>
+            </ul>
+        </div>
+        <div class="main-content">
+            <div class="header">
+                <h1>Gerenciar Contas</h1>
+                <div class="header-buttons">
+                    <button id="add-categoria-btn" class="btn btn-secondary">Adicionar Categoria</button>
+                    <button id="add-conta-btn" class="btn">Adicionar Conta</button>
+                </div>
+            </div>
+            <div class="content" id="contas-container">
+                <p>Carregando contas...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Adicionar Conta -->
+    <div id="conta-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h3>Adicionar Nova Conta</h3>
+            <div id="alert-container"></div>
+            <form id="add-conta-form">
+                <div class="form-group">
+                    <label for="nome">Nome da Conta:</label>
+                    <input type="text" id="nome" name="nome" required>
+                </div>
+                <div class="form-group">
+                    <label for="valor">Valor:</label>
+                    <input type="number" id="valor" name="valor" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="vencimento">Data de Vencimento:</label>
+                    <input type="date" id="vencimento" name="vencimento" required>
+                </div>
+                <div class="form-group">
+                    <label for="categoria">Categoria:</label>
+                    <select id="categoria" name="categoria" required>
+                        <option value="">Selecione uma categoria</option>
+                    </select>
+                </div>
+                <div class="form-group checkbox-group">
+                    <input type="checkbox" id="pago" name="pago">
+                    <label for="pago">Conta Paga</label>
+                </div>
+                <div class="form-group checkbox-group">
+                    <input type="checkbox" id="lembrete" name="lembrete">
+                    <label for="lembrete">Lembrete</label>
+                </div>
+                <button type="submit" class="btn">Adicionar Conta</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Adicionar Categoria -->
+    <div id="categoria-modal" class="modal">
+        <div class="modal-content">
+            <span id="close-categoria-modal" class="close">&times;</span>
+            <h3>Adicionar Categoria</h3>
+            <div id="alert-container-categoria"></div>
+            <form id="add-categoria-form">
+                <div class="form-group">
+                    <label for="nome_categoria">Nome da Categoria:</label>
+                    <input type="text" id="nome_categoria" name="nome_categoria" required>
+                </div>
+                <button type="submit" class="btn">Salvar Categoria</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Fechar Mês (Contas Pendentes) -->
+    <div id="fechar-mes-modal" class="modal">
+        <div class="modal-content">
+            <span id="close-fechar-mes-modal" class="close">&times;</span>
+            <h3>Contas Pendentes - <span id="mes-titulo"></span></h3>
+            <div id="contas-pendentes-container"></div>
+        </div>
+    </div>
+
+    <script>
+        var modal = document.getElementById("conta-modal");
+        var btn = document.getElementById("add-conta-btn");
+        var span = document.getElementsByClassName("close")[0];
+        var categoriaSelect = document.getElementById("categoria");
+
+        var categoriaModal = document.getElementById("categoria-modal");
+        var addCategoriaBtn = document.getElementById("add-categoria-btn");
+        var closeCategoriaSpan = document.getElementById("close-categoria-modal");
+
+        // Limpa modais ao sair da página
+        window.addEventListener('beforeunload', function() {
+            modal.style.display = "none";
+            categoriaModal.style.display = "none";
+            fecharMesModal.style.display = "none";
+        });
+
+        // Carrega contas ao abrir a página
+        window.addEventListener('DOMContentLoaded', function() {
+            loadContas();
+        });
+
+        btn.onclick = function() {
+            modal.style.display = "block";
+            loadCategorias();
+        }
+
+        function closeModal() {
+            modal.style.display = "none";
+        }
+
+        span.onclick = function() {
+            closeModal();
+        }
+
+        addCategoriaBtn.onclick = function() {
+            categoriaModal.style.display = "block";
+        }
+
+        function closeCategoriaModal() {
+            categoriaModal.style.display = "none";
+        }
+
+        closeCategoriaSpan.onclick = function() {
+            closeCategoriaModal();
+        }
+
+        var fecharMesModal = document.getElementById('fechar-mes-modal');
+        var closeFecharMesSpan = document.getElementById('close-fechar-mes-modal');
+
+        closeFecharMesSpan.onclick = function() {
+            fecharMesModal.style.display = 'none';
+            // Salva o estado dos acordeões (meses e categorias) antes de recarregar
+            const estadoAbertos = {};
+            document.querySelectorAll('.accordion-month').forEach((mes, mesIndex) => {
+                const mesTitle = mes.querySelector('.accordion-month-title');
+                if (mesTitle.classList.contains('active')) {
+                    const categoriasAbertas = [];
+                    mes.querySelectorAll('.accordion-categoria').forEach((categoria, catIndex) => {
+                        const catHeader = categoria.querySelector('.accordion-categoria-header');
+                        if (catHeader.classList.contains('active')) {
+                            categoriasAbertas.push(catIndex);
+                        }
+                    });
+                    estadoAbertos[mesIndex] = categoriasAbertas;
+                }
+            });
+            // Recarrega contas
+            loadContas();
+            // Restaura o estado dos acordeões após recarregar
+            setTimeout(() => {
+                const meses = document.querySelectorAll('.accordion-month');
+                Object.keys(estadoAbertos).forEach(mesIndex => {
+                    const index = parseInt(mesIndex);
+                    if (meses[index]) {
+                        const mesDiv = meses[index];
+                        const mesTitle = mesDiv.querySelector('.accordion-month-title');
+                        const mesContent = mesDiv.querySelector('.accordion-month-content');
+                        
+                        // Abre o mês
+                        mesTitle.classList.add('active');
+                        mesContent.classList.add('active');
+                        
+                        // Abre as categorias que estavam abertas
+                        const categorias = mesDiv.querySelectorAll('.accordion-categoria');
+                        estadoAbertos[mesIndex].forEach(catIndex => {
+                            if (categorias[catIndex]) {
+                                const catHeader = categorias[catIndex].querySelector('.accordion-categoria-header');
+                                const catContent = categorias[catIndex].querySelector('.accordion-categoria-content');
+                                catHeader.classList.add('active');
+                                catContent.classList.add('active');
+                            }
+                        });
+                    }
+                });
+            }, 100);
+        }
+
+        window.onclick = function(event) {
+            // Fecha modais apenas se clicar no fundo escuro, não nos botões
+            if (event.target === modal) {
+                modal.style.display = "none";
+            }
+            if (event.target === categoriaModal) {
+                categoriaModal.style.display = "none";
+            }
+            if (event.target === fecharMesModal) {
+                fecharMesModal.style.display = "none";
+                loadContas();
+            }
+        }
+
+        async function loadContas() {
+            const container = document.getElementById('contas-container');
+            
+            try {
+                const response = await fetch('/api/get_contas');
+                if (!response.ok) {
+                    throw new Error('Erro ao carregar contas');
+                }
+                const contas = await response.json();
+
+                if (!contas || Object.keys(contas).length === 0) {
+                    container.innerHTML = '<div class="empty-state"><p>Nenhuma conta cadastrada ainda.</p></div>';
+                    return;
+                }
+
+                // Usa DocumentFragment para melhor performance
+                const fragment = document.createDocumentFragment();
+                const meses = Object.keys(contas).sort();
+
+                meses.forEach((mes) => {
+                    const mesDiv = document.createElement('div');
+                    mesDiv.className = 'accordion-month';
+
+                    const mesHeader = document.createElement('div');
+                    mesHeader.className = 'accordion-month-header';
+                    mesHeader.innerHTML = `
+                        <div class="accordion-month-title">
+                            <span>${mes}</span>
+                            <span class="icon">▼</span>
+                        </div>
+                        <button class="btn-fechar-mes" onclick="fecharMes(event, '${mes}')">Fechar Mês</button>
+                    `;
+
+                    const mesContent = document.createElement('div');
+                    mesContent.className = 'accordion-month-content';
+
+                    const categorias = Object.keys(contas[mes]);
+                    const categoriaFragment = document.createDocumentFragment();
+                    
+                    categorias.forEach((categoria) => {
+                        const categoriaDiv = document.createElement('div');
+                        categoriaDiv.className = 'accordion-categoria';
+
+                        const categoriaHeader = document.createElement('div');
+                        categoriaHeader.className = 'accordion-categoria-header';
+                        categoriaHeader.innerHTML = `
+                            <span>${categoria || 'Sem categoria'}</span>
+                            <span class="icon">▼</span>
+                        `;
+
+                        const categoriaContent = document.createElement('div');
+                        categoriaContent.className = 'accordion-categoria-content';
+
+                        const contasList = contas[mes][categoria];
+                        const contasFragment = document.createDocumentFragment();
+                        
+                        contasList.forEach((conta) => {
+                            const contaItem = document.createElement('div');
+                            contaItem.className = 'conta-item';
+                            
+                            const dataFormatada = formatarData(conta.data_vencimento);
+                            const valorFormatado = formatarValor(conta.valor);
+                            const statusBadge = conta.pago 
+                                ? '<span class="badge badge-pago">Pago</span>'
+                                : '<span class="badge badge-pendente">Pendente</span>';
+
+                            const botaoPagar = conta.pago 
+                                ? '' 
+                                : `<button class="btn-pagar" onclick="pagarConta(${conta.id})">Pagar</button>`;
+
+                            contaItem.innerHTML = `
+                                <div class="conta-nome">${conta.nome_conta}</div>
+                                <div class="conta-valor">${valorFormatado}</div>
+                                <div class="conta-vencimento">${dataFormatada}</div>
+                                <div class="conta-status">${statusBadge}</div>
+                                <div>${botaoPagar}</div>
+                            `;
+
+                            contasFragment.appendChild(contaItem);
+                        });
+
+                        categoriaContent.appendChild(contasFragment);
+
+                        categoriaHeader.onclick = function() {
+                            categoriaHeader.classList.toggle('active');
+                            categoriaContent.classList.toggle('active');
+                        };
+
+                        categoriaDiv.appendChild(categoriaHeader);
+                        categoriaDiv.appendChild(categoriaContent);
+                        categoriaFragment.appendChild(categoriaDiv);
+                    });
+
+                    mesContent.appendChild(categoriaFragment);
+
+                    const mesTitle = mesHeader.querySelector('.accordion-month-title');
+                    mesTitle.onclick = function() {
+                        mesTitle.classList.toggle('active');
+                        mesContent.classList.toggle('active');
+                    };
+
+                    mesDiv.appendChild(mesHeader);
+                    mesDiv.appendChild(mesContent);
+                    fragment.appendChild(mesDiv);
+                });
+
+                container.innerHTML = '';
+                container.appendChild(fragment);
+
+            } catch (error) {
+                container.innerHTML = '<div class="empty-state"><p>Erro ao carregar contas.</p></div>';
+                showToast('Não foi possível carregar as contas.', true);
+            }
+        }
+
+        function formatarData(dataStr) {
+            const data = new Date(dataStr + 'T00:00:00');
+            return data.toLocaleDateString('pt-BR');
+        }
+
+        function formatarValor(valor) {
+            return new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            }).format(valor);
+        }
+
+        async function pagarConta(contaId) {
+            if (!confirm('Deseja marcar esta conta como paga?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/pagar_conta', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ conta_id: contaId })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showToast(result.message || 'Conta marcada como paga!', false);
+                    loadContas();
+                } else {
+                    showToast(result.message || 'Erro ao pagar conta.', true);
+                }
+            } catch (error) {
+                showToast('Ocorreu um erro ao tentar pagar a conta.', true);
+            }
+        }
+
+        async function fecharMes(event, mes) {
+            event.stopPropagation();
+            
+            // Converter mes de "Mês/Ano" para "YYYY-MM"
+            const mesAnoFormatado = converterMesParaAnoMes(mes);
+            
+            try {
+                const response = await fetch(`/api/get_contas_pendentes?ano_mes=${mesAnoFormatado}`);
+                
+                if (!response.ok) {
+                    throw new Error('Erro ao carregar contas pendentes');
+                }
+
+                const contasPendentes = await response.json();
+                
+                const fecharMesModal = document.getElementById('fechar-mes-modal');
+                const mesTitulo = document.getElementById('mes-titulo');
+                const containerPendentes = document.getElementById('contas-pendentes-container');
+                
+                mesTitulo.textContent = mes;
+                
+                if (!contasPendentes || contasPendentes.length === 0) {
+                    containerPendentes.innerHTML = '<div class="empty-state"><p>Nenhuma conta pendente neste mês.</p></div>';
+                    fecharMesModal.style.display = 'block';
+                    return;
+                }
+
+                containerPendentes.innerHTML = '<div class="contas-pendentes-list"></div>';
+                const listaContainer = containerPendentes.querySelector('.contas-pendentes-list');
+
+                contasPendentes.forEach((conta) => {
+                    const contaDiv = document.createElement('div');
+                    contaDiv.className = 'conta-pendente-item';
+                    
+                    const valorFormatado = formatarValor(conta.valor);
+                    const dataFormatada = formatarData(conta.data_vencimento);
+                    
+                    contaDiv.innerHTML = `
+                        <div class="conta-pendente-info">
+                            <div class="conta-pendente-nome">${conta.nome_conta}</div>
+                            <div class="conta-pendente-detalhe">${conta.categoria} | ${valorFormatado} | Vencimento: ${dataFormatada}</div>
+                        </div>
+                        <button class="btn-pagar" onclick="pagarContaDoModal(${conta.id})">Pagar</button>
+                    `;
+                    
+                    listaContainer.appendChild(contaDiv);
+                });
+
+                fecharMesModal.style.display = 'block';
+                
+            } catch (error) {
+                showToast('Ocorreu um erro ao carregar as contas pendentes.', true);
+            }
+        }
+
+        function converterMesParaAnoMes(mes) {
+            // Converte "Mês/Ano" para "YYYY-MM"
+            const [nomeMes, ano] = mes.split('/');
+            const meses = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+            const indexMes = meses.findIndex(m => m.startsWith(nomeMes.toLowerCase())) + 1;
+            return `${ano}-${String(indexMes).padStart(2, '0')}`;
+        }
+
+        async function pagarContaDoModal(contaId) {
+            if (!confirm('Deseja marcar esta conta como paga?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/pagar_conta', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ conta_id: contaId })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showToast(result.message || 'Conta marcada como paga!', false);
+                    // Remove a conta do modal
+                    const fecharMesModal = document.getElementById('fechar-mes-modal');
+                    const contasContainer = document.querySelector('.contas-pendentes-list');
+                    const contaItem = document.querySelector(`[onclick="pagarContaDoModal(${contaId})"]`).closest('.conta-pendente-item');
+                    contaItem.remove();
+                    
+                    if (contasContainer.children.length === 0) {
+                        document.getElementById('contas-pendentes-container').innerHTML = '<div class="empty-state"><p>Nenhuma conta pendente neste mês.</p></div>';
+                    }
+                } else {
+                    showToast(result.message || 'Erro ao pagar conta.', true);
+                }
+            } catch (error) {
+                showToast('Ocorreu um erro ao tentar pagar a conta.', true);
+            }
+        }
+
+        // Desabilita lembrete se conta estiver paga
+        document.getElementById('pago').addEventListener('change', function() {
+            const lembreteCheckbox = document.getElementById('lembrete');
+            if (this.checked) {
+                lembreteCheckbox.disabled = true;
+                lembreteCheckbox.checked = false;
+            } else {
+                lembreteCheckbox.disabled = false;
+            }
+        });
+
+        document.getElementById('add-conta-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const form = event.target;
+            const payload = {
+                nome_conta: form.nome.value.trim(),
+                valor: form.valor.value,
+                data_vencimento: form.vencimento.value,
+                categoria: form.categoria.value,
+                pago: form.pago.checked,
+                lembrete: form.lembrete.checked
+            };
+
+            if (!payload.nome_conta || !payload.valor || !payload.data_vencimento || !payload.categoria) {
+                showAlert('Preencha todos os campos obrigatórios.', 'danger');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/criar_conta', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showAlert(result.message, 'success');
+                    form.reset();
+                    closeModal();
+                    loadContas(); // Recarrega a lista de contas
+                } else {
+                    showAlert(result.message || 'Erro ao adicionar conta.', 'danger');
+                }
+            } catch (error) {
+                showAlert('Ocorreu um erro ao tentar adicionar conta.', 'danger');
+            }
+        });
+
+        document.getElementById('add-categoria-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const form = event.target;
+            const nomeCategoria = form.nome_categoria.value.trim();
+
+            if (!nomeCategoria) {
+                showAlertCategoria('Informe o nome da categoria.', 'danger');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/add_categoria', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nome_categoria: nomeCategoria })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showAlertCategoria(result.message || 'Categoria adicionada com sucesso.', 'success');
+                    form.reset();
+                    closeCategoriaModal();
+                    loadCategorias();
+                } else {
+                    showAlertCategoria(result.message || 'Erro ao adicionar categoria.', 'danger');
+                }
+            } catch (error) {
+                showAlertCategoria('Ocorreu um erro ao tentar adicionar categoria.', 'danger');
+            }
+        });
+
+        async function loadCategorias() {
+            try {
+                const response = await fetch('/api/get_categorias');
+                if (!response.ok) {
+                    throw new Error('Erro ao carregar categorias');
+                }
+                const categorias = await response.json();
+
+                categoriaSelect.innerHTML = '<option value="">Selecione uma categoria</option>';
+                categorias.forEach((categoria) => {
+                    const option = document.createElement('option');
+                    option.value = categoria.nome_categoria;
+                    option.textContent = categoria.nome_categoria;
+                    categoriaSelect.appendChild(option);
+                });
+            } catch (error) {
+                showAlert('Não foi possível carregar categorias.', 'danger');
+            }
+        }
+
+        function showAlert(message, type) {
+            // Mantém alerta interno no modal para erros de validação rápidos
+            const alertContainer = document.getElementById('alert-container');
+            alertContainer.innerHTML = '';
+
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.textContent = message;
+            alertContainer.appendChild(alertDiv);
+
+            // Mostra também toast popup para feedback visível
+            showToast(message, type === 'danger');
+
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+
+        function showAlertCategoria(message, type) {
+            showToast(message, type === 'danger');
+        }
+
+        function showToast(message, isError) {
+            const toastContainerId = 'toast-container';
+            let toastContainer = document.getElementById(toastContainerId);
+
+            if (!toastContainer) {
+                toastContainer = document.createElement('div');
+                toastContainer.id = toastContainerId;
+                toastContainer.className = 'toast-container';
+                document.body.appendChild(toastContainer);
+            }
+
+            const toast = document.createElement('div');
+            toast.className = `toast ${isError ? 'toast-error' : ''}`;
+            toast.textContent = message;
+
+            toastContainer.appendChild(toast);
+
+            setTimeout(() => {
+                toast.remove();
+                if (!toastContainer.hasChildNodes()) {
+                    toastContainer.remove();
+                }
+            }, 4000);
+        }
+    </script>
+</body>
+</html>
