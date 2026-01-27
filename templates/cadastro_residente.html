@@ -148,9 +148,66 @@
             border: 1px solid #eee;
             border-radius: 4px;
             margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         .resident-item span {
             font-weight: bold;
+            flex: 1;
+        }
+        .resident-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .btn-icon {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            color: white;
+        }
+        .btn-view {
+            background-color: #008C99;
+        }
+        .btn-view:hover {
+            background-color: #00747e;
+        }
+        .btn-delete {
+            background-color: #dc3545;
+        }
+        .btn-delete:hover {
+            background-color: #c82333;
+        }
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .btn-confirm {
+            background-color: #dc3545;
+            flex: 1;
+        }
+        .btn-confirm:hover {
+            background-color: #c82333;
+        }
+        .btn-cancel {
+            background-color: #6c757d;
+            flex: 1;
+        }
+        .btn-cancel:hover {
+            background-color: #5a6268;
+        }
+        .info-row {
+            margin-bottom: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .info-row label {
+            font-weight: bold;
+            display: inline-block;
+            width: 100px;
         }
         .alert {
             padding: 15px;
@@ -196,8 +253,12 @@
                     <div id="residents-container">
                         {% if residents %}
                             {% for resident in residents %}
-                                <div class="resident-item" data-id="{{ resident.id }}">
-                                    <span>{{ resident.name }} {{ resident.surname }}</span>
+                                <div class="resident-item" data-id="{{ resident.id }}" data-nome="{{ resident.nome }}" data-sobrenome="{{ resident.sobrenome }}" data-email="{{ resident.email }}" data-telefone="{{ resident.telefone }}">
+                                    <span>{{ resident.nome }} {{ resident.sobrenome }}</span>
+                                    <div class="resident-actions">
+                                        <button class="btn-icon btn-view" onclick="viewResident(this)">Ver</button>
+                                        <button class="btn-icon btn-delete" onclick="confirmDelete(this)">Deletar</button>
+                                    </div>
                                 </div>
                             {% endfor %}
                         {% else %}
@@ -223,8 +284,57 @@
                     <label for="sobrenome">Sobrenome:</label>
                     <input type="text" id="sobrenome" name="sobrenome" required>
                 </div>
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="telefone">Telefone:</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="ddd" name="ddd" placeholder="DDD" maxlength="2" style="width: 60px;" required>
+                        <input type="text" id="numero" name="numero" placeholder="Número" maxlength="9" style="flex: 1;" required>
+                    </div>
+                </div>
                 <button type="submit" class="btn">Cadastrar Morador</button>
             </form>
+        </div>
+    </div>
+
+    <!-- Modal de Visualização -->
+    <div id="view-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeViewModal()">&times;</span>
+            <h3>Detalhes do Morador</h3>
+            <div id="resident-details">
+                <div class="info-row">
+                    <label>Nome:</label>
+                    <span id="view-nome"></span>
+                </div>
+                <div class="info-row">
+                    <label>Sobrenome:</label>
+                    <span id="view-sobrenome"></span>
+                </div>
+                <div class="info-row">
+                    <label>Email:</label>
+                    <span id="view-email"></span>
+                </div>
+                <div class="info-row">
+                    <label>Telefone:</label>
+                    <span id="view-telefone"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmação de Exclusão -->
+    <div id="delete-modal" class="modal">
+        <div class="modal-content">
+            <h3>Confirmar Exclusão</h3>
+            <p>Tem certeza que deseja remover este morador?</p>
+            <div class="modal-buttons">
+                <button class="btn btn-confirm" onclick="deleteResident()">Sim, Deletar</button>
+                <button class="btn btn-cancel" onclick="closeDeleteModal()">Cancelar</button>
+            </div>
         </div>
     </div>
 
@@ -253,13 +363,83 @@
             if (event.target == modal) {
                 modal.style.display = "none";
             }
+            if (event.target == document.getElementById('view-modal')) {
+                document.getElementById('view-modal').style.display = "none";
+            }
+            if (event.target == document.getElementById('delete-modal')) {
+                document.getElementById('delete-modal').style.display = "none";
+            }
+        }
+
+        // Função para visualizar morador
+        function viewResident(button) {
+            const item = button.closest('.resident-item');
+            document.getElementById('view-nome').textContent = item.dataset.nome;
+            document.getElementById('view-sobrenome').textContent = item.dataset.sobrenome;
+            document.getElementById('view-email').textContent = item.dataset.email;
+            document.getElementById('view-telefone').textContent = item.dataset.telefone;
+            document.getElementById('view-modal').style.display = 'block';
+        }
+
+        function closeViewModal() {
+            document.getElementById('view-modal').style.display = 'none';
+        }
+
+        // Variável para armazenar o ID do morador a ser deletado
+        let residentToDelete = null;
+
+        function confirmDelete(button) {
+            const item = button.closest('.resident-item');
+            residentToDelete = item.dataset.id;
+            document.getElementById('delete-modal').style.display = 'block';
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('delete-modal').style.display = 'none';
+            residentToDelete = null;
+        }
+
+        async function deleteResident() {
+            if (!residentToDelete) return;
+
+            try {
+                const response = await fetch(`/api/residents/${residentToDelete}`, {
+                    method: 'DELETE'
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showAlert(result.message, 'success');
+                    // Remove o elemento da lista
+                    const item = document.querySelector(`.resident-item[data-id="${residentToDelete}"]`);
+                    if (item) {
+                        item.remove();
+                    }
+                    closeDeleteModal();
+                } else {
+                    showAlert(result.message, 'danger');
+                }
+            } catch (error) {
+                showAlert('Ocorreu um erro ao tentar deletar.', 'danger');
+            }
         }
 
         document.getElementById('add-resident-form').addEventListener('submit', async function(event) {
             event.preventDefault();
 
             const form = event.target;
-            const formData = new FormData(form);
+            const formData = new FormData();
+            
+            // Adiciona os campos nome, sobrenome e email
+            formData.append('nome', form.nome.value);
+            formData.append('sobrenome', form.sobrenome.value);
+            formData.append('email', form.email.value);
+            
+            // Junta DDD + número para criar o telefone completo
+            const telefone = form.ddd.value + form.numero.value;
+            formData.append('telefone', telefone);
+            
             const alertContainer = document.getElementById('alert-container');
             
             try {
@@ -275,9 +455,18 @@
                     // Adiciona o novo residente à lista sem recarregar a página
                     const newResidentDiv = document.createElement('div');
                     newResidentDiv.className = 'resident-item';
-                    // Assumindo que a API retorna o novo residente com id, nome e sobrenome
-                    newResidentDiv.dataset.id = result.resident.id; 
-                    newResidentDiv.innerHTML = `<span>${formData.get('nome')} ${formData.get('sobrenome')}</span>`;
+                    newResidentDiv.dataset.id = result.resident.id;
+                    newResidentDiv.dataset.nome = formData.get('nome');
+                    newResidentDiv.dataset.sobrenome = formData.get('sobrenome');
+                    newResidentDiv.dataset.email = formData.get('email');
+                    newResidentDiv.dataset.telefone = telefone;
+                    newResidentDiv.innerHTML = `
+                        <span>${formData.get('nome')} ${formData.get('sobrenome')}</span>
+                        <div class="resident-actions">
+                            <button class="btn-icon btn-view" onclick="viewResident(this)">Ver</button>
+                            <button class="btn-icon btn-delete" onclick="confirmDelete(this)">Deletar</button>
+                        </div>
+                    `;
                     document.getElementById('residents-container').appendChild(newResidentDiv);
                     form.reset();
                     modal.style.display = "none"; // Fecha o modal

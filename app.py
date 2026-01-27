@@ -4,10 +4,12 @@ from dotenv import load_dotenv
 from services.auth_service import AuthService
 from services.user_service import UserService
 from services.resident_service import ResidentService
+from datetime import timedelta
 
 load_dotenv()
 
 app = Flask(__name__)
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=6)
 
 app.secret_key = os.getenv('APP_SECRET')
 
@@ -56,20 +58,28 @@ def add_residente():
         return redirect(url_for('login'))
     if request.method == "POST":
         resident = request.form
-        if ResidentService.create_resident(resident['nome'],resident['sobrenome'], session['user_id']):
+        if ResidentService.create_resident(resident['nome'],resident['sobrenome'],resident['email'], resident['telefone'], session['user_id']):
             return jsonify({
                     "message": "Residente cadastrado com sucesso!",
                     "resident": {
                         
                         "nome": resident['nome'],
-                        "sobrenome": resident['sobrenome']
+                        "sobrenome": resident['sobrenome'],
+                        'email': resident['email'],
+                        'telefone': resident['telefone']
                     }
                     }), 201
         else:
             return jsonify({'message': 'Erro ao cadastrar residente.'}), 400
-
-
-
+        
+@app.route('/api/residents/<int:resident_id>', methods=['DELETE'])
+def delete_residente(resident_id):
+    if 'user' not in session:
+        return redirect(url_for('login'))
+    if ResidentService.deletar_resident(resident_id):
+        return jsonify({'message': 'Residente deletado com sucesso.'}), 200
+    else:
+        return jsonify({'message': 'Erro ao deletar residente.'}), 400
 
 @app.route('/home')
 def home():
