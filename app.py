@@ -25,6 +25,7 @@ def login():
         password = request.form['password']
         
         if AuthService.authenticate(email, password):
+            
             session['user'] = email
             return redirect(url_for('home'))
         else:
