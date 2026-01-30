@@ -24,7 +24,7 @@ class AuthService:
     @staticmethod
     def authenticate(email, senha):
         try:
-            conn = sqlite3.connect(f'../{os.getenv("DATABASE_PATH")}')
+            conn = sqlite3.connect(f'{os.getenv("DATABASE_PATH")}')
             conn.row_factory = sqlite3.Row
             c = conn.cursor()
             c.execute("SELECT id,senha,perfil FROM user WHERE email = ?", (email,))
@@ -67,6 +67,8 @@ async def criar_token(form_data: OAuth2PasswordRequestForm = Depends()):
                     }
         except:
             return {'message': 'Não foi possivel gerar o token'}
+
+
         
 @app.get('/api/get', status_code=status.HTTP_200_OK)
 async def get(token: str =  Depends(oauth2_scheme)):
