@@ -26,7 +26,14 @@ def login():
         
         if AuthService.authenticate(email, password):
             session['user'] = email
-            return redirect(url_for('home'))
+            tokens = AuthService.tokens(email, password)
+            if tokens:
+                print(tokens)
+                session['access_token'] = tokens.get('access_token')
+                session['refresh_token'] = tokens.get('refresh_token')
+                return redirect(url_for('home'))
+            
+            return render_template('login.html', error='Erro ao obter tokens')
         else:
             return render_template('login.html', error='Credenciais inválidas')
         
